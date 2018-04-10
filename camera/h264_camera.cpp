@@ -207,7 +207,7 @@ int read_buffer(void * opaque,uint8_t *buf, int buf_size){
 
 #if Cbuf
 
-	while(RingBuffer_empty(rbuf))usleep(10);
+	while(RingBuffer_empty(rbuf))usleep(1000);
 	len = RingBuffer_read(rbuf,buf,buf_size);
 
 #else

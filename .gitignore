@@ -1,4 +1,4 @@
-objs/
-lib/
+objs/*.o
+lib/*.a
 bigbuckbunny_480x272.h264
 decodeH264

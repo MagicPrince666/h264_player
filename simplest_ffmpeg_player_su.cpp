@@ -279,7 +279,6 @@ void *video_decoder_Thread(void *arg)
 	return NULL;
 }
 
-struct list_head* head;
 
 RingBuffer* rbuf;
 
@@ -291,9 +290,6 @@ int main(int argc, char* argv[])
 	// else
 	// 	fp_open=fopen("bigbuckbunny_480x272.h264","rb+");
 	
-	head = (struct list_head *)malloc(sizeof(struct list_head));
-	INIT_LIST_HEAD(head);
-	printf("init kernel list head\n");
 
 	rbuf = RingBuffer_create(DEFAULT_BUF_SIZE);
 

@@ -3,9 +3,12 @@ CPP = g++
 TARGET	= decodeH264
 
 DIR		= . ./camera ./H264_camera ./listop ./ringbuf
-INC		= -I./include -I/usr/include -I./listop -I./ringbuf -I./H264_camera
+INC		= -I./camera -I./include -I/usr/include -I./listop -I./ringbuf -I./H264_camera
+
+FFMPEGDIR = ../wifi/ffmpeg
+FFMPEGLIB = -L$(FFMPEGDIR)/libavformat -L$(FFMPEGDIR)/libavcodec -L$(FFMPEGDIR)/libavutil -L$(FFMPEGDIR)/libswscale -L$(FFMPEGDIR)/libswresample
 CFLAGS	= -g -Wall -O2
-LDFLAGS += -L./lib -lx264 -lavformat -lavcodec -lavutil -lswscale -lswresample 
+LDFLAGS += $(FFMPEGLIB) -L./lib -lx264 -lavformat -lavcodec -lavutil -lswscale -lswresample
 LDFLAGS += -lSDL2 -lpthread -ldl -lz -lm
 
 OBJPATH	= ./objs

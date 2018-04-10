@@ -356,7 +356,7 @@ extern RingBuffer* rbuf;
 //第一个参数(void *opaque)一般情况下可以不用
 int read_buf(void * opaque,uint8_t *buf, int buf_size){
 	uint32_t len = 0;
-	while(RingBuffer_empty(rbuf))usleep(10);
+	while(RingBuffer_empty(rbuf))usleep(10000);
 	len = RingBuffer_read(rbuf,buf,buf_size);
 	return len;
 }
