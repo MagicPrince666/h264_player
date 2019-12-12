@@ -42,16 +42,17 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <pthread.h>
 
-#include "h264encoder.h"
-#include "video_capture.h"
-#include "h264_camera.h"
+//#include "h264encoder.h"
+//#include "video_capture.h"
+//#include "h264_camera.h"
 #include "listop.h" 
 #include "ringbuffer.h"
 #include "H264_UVC_TestAP.h"
 
 //#define __STDC_CONSTANT_MACROS
-#define SOFT_H264 1
+#define SOFT_H264 0
 
 extern "C"
 {
@@ -325,6 +326,8 @@ int main(int argc, char* argv[])
 	v4l2_close(cam);
 	
 #else
+
+	pthread_t thread[3];
 
 	if((pthread_create(&thread[2], NULL, video_decoder_Thread, NULL)) != 0)   
                 printf("video_decoder_Thread create fail!\n");
