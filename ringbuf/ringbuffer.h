@@ -18,6 +18,8 @@ typedef struct cycle_buffer
 RingBuffer *RingBuffer_create(int length);
 void RingBuffer_destroy(RingBuffer *buffer);
 
+int RingBuffer_overage(RingBuffer* buffer);
+
 int RingBuffer_read(RingBuffer *buffer, uint8_t *target,unsigned int amount);
 int RingBuffer_write(RingBuffer *buffer, uint8_t *data,unsigned int length);
 

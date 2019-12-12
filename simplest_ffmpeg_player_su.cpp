@@ -83,7 +83,7 @@ int sfp_refresh_thread(void *opaque){
 			event.type = SFM_REFRESH_EVENT;
 			SDL_PushEvent(&event);
 		}
-		SDL_Delay(40);
+		SDL_Delay(33);
 	}
 	thread_exit=0;
 	thread_pause=0;
@@ -110,6 +110,8 @@ int fill_buffer(void * opaque,uint8_t *buf, int buf_size){
 		return -1;  
 	}  
 }  
+
+bool sdl_ready = false;
 
 void *video_decoder_Thread(void *arg)
 {
@@ -218,6 +220,8 @@ void *video_decoder_Thread(void *arg)
 	//YV12: Y + V + U  (3 planes)
 	sdlTexture = SDL_CreateTexture(sdlRenderer, SDL_PIXELFORMAT_IYUV, SDL_TEXTUREACCESS_STREAMING,pCodecCtx->width,pCodecCtx->height);  
 
+	sdl_ready = true;
+
 	sdlRect.x=0;
 	sdlRect.y=0;
 	sdlRect.w=screen_w;
@@ -226,6 +230,7 @@ void *video_decoder_Thread(void *arg)
 	packet=(AVPacket *)av_malloc(sizeof(AVPacket));
 
 	video_tid = SDL_CreateThread(sfp_refresh_thread,NULL,NULL);
+	
 	//------------SDL End------------
 	//Event Loop
 	//sleep(10);
@@ -262,6 +267,7 @@ void *video_decoder_Thread(void *arg)
 				thread_pause=!thread_pause;
 		}else if(event.type==SDL_QUIT){
 			thread_exit=1;
+			capturing = 0;
 		}else if(event.type==SFM_BREAK_EVENT){
 			break;
 		}
@@ -324,13 +330,13 @@ int main(int argc, char* argv[])
         pthread_join(thread[2],NULL);
     }
 	v4l2_close(cam);
-	
+
 #else
 
 	pthread_t thread[3];
 
 	if((pthread_create(&thread[2], NULL, video_decoder_Thread, NULL)) != 0)   
-                printf("video_decoder_Thread create fail!\n");
+        printf("video_decoder_Thread create fail!\n");
 	if((pthread_create(&thread[1], NULL, cap_video, NULL)) != 0)   
 		printf("cap_video create fail!\n");
 	

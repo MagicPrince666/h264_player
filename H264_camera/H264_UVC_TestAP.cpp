@@ -53,7 +53,7 @@ struct vdIn *vd;
 struct tm *tdate;
 time_t curdate;
 //char rec_filename[] = "Record.264";	
-FILE *rec_fp1 = NULL;
+//FILE *rec_fp1 = NULL;
 
 int errnoexit(const char *s)
 {
@@ -292,7 +292,7 @@ void Init_264camera(void)
 	int format = V4L2_PIX_FMT_H264;
 	
 	int ret;
-	ret = open_device(1);
+	ret = open_device(2);
 
 	if(ret != -1)
 	{
@@ -340,10 +340,10 @@ void Init_264camera(void)
 		
 	}
 
-	remove("Record.264");
-    rec_fp1 = fopen("Record.264", "a+b");
-	if(rec_fp1 != NULL)
-		printf("---create Record.264------success------- !\n");	
+//	remove("Record.264");
+//    rec_fp1 = fopen("Record.264", "a+b");
+//	if(rec_fp1 != NULL)
+//		printf("---create Record.264------success------- !\n");	
 }
 
  
@@ -360,7 +360,7 @@ int read_buf(void * opaque,uint8_t *buf, int buf_size){
 	len = RingBuffer_read(rbuf,buf,buf_size);
 	return len;
 }
-
+extern bool sdl_ready;
 void * cap_video (void *arg)   
 {
 	int ret;
@@ -369,9 +369,18 @@ void * cap_video (void *arg)
 
 	struct timeval tv;
     tv.tv_sec = 0;
-    tv.tv_usec = 10000;
+    tv.tv_usec = 33000;
 	fd_set rfds;
     int retval=0;
+
+	//printf("waiting for sdl2\n");
+	//sleep(2);
+	/*
+	while(!sdl_ready){
+		usleep(100000);
+	}*/
+
+	//fcntl(vd->fd, F_SETFL, fcntl(vd->fd, F_GETFD, 0)|O_NONBLOCK);
 
 	while(capturing)
 	{
@@ -395,10 +404,14 @@ void * cap_video (void *arg)
 			{
 				printf("Unable to dequeue buffer!\n");
 				exit(1);
-			}	  
+			}
 			
 			//fwrite(buffers[buf.index].start, buf.bytesused, 1, rec_fp1);
-			RingBuffer_write(rbuf,(uint8_t*)(buffers[buf.index].start),buf.bytesused);
+			if(RingBuffer_overage(rbuf) < buf.bytesused){
+				RingBuffer_Reset(rbuf);
+			} else {
+				RingBuffer_write(rbuf,(uint8_t*)(buffers[buf.index].start),buf.bytesused);
+			}
 
 			ret = ioctl(vd->fd, VIDIOC_QBUF, &buf);
 			
@@ -408,7 +421,9 @@ void * cap_video (void *arg)
 				exit(1);
 			}
 		}
-	}	
+	}
+
+	printf("quit video thread\n");
 	close_v4l2(vd);
 	pthread_exit(NULL);
 }

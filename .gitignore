@@ -1,4 +1,6 @@
 objs/*.o
 lib/*.a
+*.o
+Record.264
 bigbuckbunny_480x272.h264
 decodeH264

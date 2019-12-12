@@ -1,5 +1,6 @@
 #include "ringbuffer.h"
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 
 
@@ -54,13 +55,24 @@ int RingBuffer_Reset(RingBuffer *buffer)
     buffer->in   = 0;
     buffer->out  = 0;
     memset(buffer->buf, 0, buffer->size);
-
+    printf("buf reset\n");
     return 0;
 }
 
 int RingBuffer_empty(RingBuffer *buffer)
 {
     return buffer->in == buffer->out;
+}
+
+//get buffer size canbe usb
+int RingBuffer_overage(RingBuffer* buffer)
+{
+    int overage = buffer->in - buffer->out;
+
+    if(overage > 0)
+        return DEFAULT_BUF_SIZE - overage;
+    else
+        return DEFAULT_BUF_SIZE + overage;
 }
 
 int RingBuffer_write(RingBuffer *buffer, uint8_t *data,unsigned int length)
