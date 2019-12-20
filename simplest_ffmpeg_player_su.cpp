@@ -53,6 +53,14 @@
 
 //#define __STDC_CONSTANT_MACROS
 #define SOFT_H264 0
+#if SOFT_H264
+#else
+#define RTSP_VIDEO 1
+#endif
+
+#if RTSP_VIDEO
+#include "XagRTSPClient.h"
+#endif
 
 extern "C"
 {
@@ -142,11 +150,15 @@ void *video_decoder_Thread(void *arg)
 	
 	//Init AVIOContext
 	unsigned char *aviobuffer=(unsigned char *)av_malloc(32768);
-	#if SOFT_H264
+#if SOFT_H264
 	AVIOContext *avio =avio_alloc_context(aviobuffer, 32768,0,NULL,read_buffer,NULL,NULL);
-	#else
+#else
+#if RTSP_VIDEO
+	AVIOContext *avio =avio_alloc_context(aviobuffer, 32768,0,NULL,rtsp_read_buf,NULL,NULL);
+#else
 	AVIOContext *avio =avio_alloc_context(aviobuffer, 32768,0,NULL,read_buf,NULL,NULL);
-	#endif
+#endif
+#endif
 	pFormatCtx->pb=avio;
 
 /*
@@ -268,6 +280,7 @@ void *video_decoder_Thread(void *arg)
 		}else if(event.type==SDL_QUIT){
 			thread_exit=1;
 			capturing = 0;
+			XagRtsp::rtsp_ison = false;
 		}else if(event.type==SFM_BREAK_EVENT){
 			break;
 		}
@@ -287,7 +300,9 @@ void *video_decoder_Thread(void *arg)
 }
 
 
-RingBuffer* rbuf;
+//RingBuffer* rbuf;
+RingBuffer player_ring;
+cycle_buffer* player_buffer = NULL;
 
 int main(int argc, char* argv[])
 {
@@ -298,7 +313,17 @@ int main(int argc, char* argv[])
 	// 	fp_open=fopen("bigbuckbunny_480x272.h264","rb+");
 	
 
-	rbuf = RingBuffer_create(DEFAULT_BUF_SIZE);
+	//rbuf = RingBuffer_create(DEFAULT_BUF_SIZE);
+	if(player_buffer != NULL){
+    printf("init aoa ringbuf\n");
+  } else {
+    player_buffer = player_ring.ring_init(DEFAULT_BUF_SIZE);
+  }
+
+	pthread_t thread[3];
+
+	if((pthread_create(&thread[2], NULL, video_decoder_Thread, NULL)) != 0)   
+		printf("video_decoder_Thread create fail!\n");
 
 #if SOFT_H264
 	cam = (struct camera *) malloc(sizeof(struct camera));
@@ -333,22 +358,26 @@ int main(int argc, char* argv[])
 
 #else
 
-	pthread_t thread[3];
-
-	if((pthread_create(&thread[2], NULL, video_decoder_Thread, NULL)) != 0)   
-        printf("video_decoder_Thread create fail!\n");
+#if RTSP_VIDEO
+	if((pthread_create(&thread[1], NULL, XagRtsp::rtsp_thead, NULL)) != 0)   
+		printf("rtsp video create fail!\n");
+#else
 	if((pthread_create(&thread[1], NULL, cap_video, NULL)) != 0)   
 		printf("cap_video create fail!\n");
+#endif	
 	
-	if(thread[2] != 0) {   
-        pthread_join(thread[2],NULL);
-    }
 	if(thread[1] != 0) {   
         pthread_join(thread[1],NULL);
     }
 	
 #endif
 
-	RingBuffer_destroy(rbuf);
+	if(thread[2] != 0) {   
+        pthread_join(thread[2],NULL);
+    }
+
+	//RingBuffer_destroy(rbuf);
+	player_ring.destroy(player_buffer);
+    player_buffer = NULL;
 	return 0;
 }

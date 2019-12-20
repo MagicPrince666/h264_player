@@ -1,29 +1,36 @@
-#ifndef __RINGBUFFER_H__
-#define __RINGBUFFER_H__
+#ifndef __RINGBUFFER_H_
+#define __RINGBUFFER_H_
 
-#include <stdint.h>
+#include <stdlib.h>
+#include <inttypes.h>
+#include <pthread.h>
 
-#define Min(x, y) ((x) < (y) ? (x) : (y))
-#define ROUND_UP_2(num)  (((num)+1)&~1)
-#define DEFAULT_BUF_SIZE (2*1024*1024)
+#define DEFAULT_BUF_SIZE 1*1024*1024
 
-typedef struct cycle_buffer 
+typedef struct 
 {  
-    unsigned char* buf;
+    uint8_t*  buf;
     unsigned int   size;
     unsigned int   in;
     unsigned int   out;
-}RingBuffer;  
+}cycle_buffer;  
 
-RingBuffer *RingBuffer_create(int length);
-void RingBuffer_destroy(RingBuffer *buffer);
 
-int RingBuffer_overage(RingBuffer* buffer);
+class RingBuffer {
+public:
+    //cycle_buffer* buffer;
+    static cycle_buffer* ring_init(int length);
+    static int destroy(cycle_buffer* buffer);
 
-int RingBuffer_read(RingBuffer *buffer, uint8_t *target,unsigned int amount);
-int RingBuffer_write(RingBuffer *buffer, uint8_t *data,unsigned int length);
+    static int read(cycle_buffer* buffer, uint8_t *target,unsigned int amount);
+    static int write(cycle_buffer* buffer, uint8_t *data,unsigned int length);
+    static int empty(cycle_buffer* buffer);
+    static int overage(cycle_buffer* buffer);
+    static int Reset(cycle_buffer* buffer);
 
-int RingBuffer_empty(RingBuffer *buffer);
-int RingBuffer_Reset(RingBuffer *buffer);
+protected:   
+    
+    
+};
 
 #endif

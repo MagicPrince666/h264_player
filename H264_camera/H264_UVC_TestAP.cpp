@@ -347,7 +347,9 @@ void Init_264camera(void)
 }
 
  
-extern RingBuffer* rbuf;
+//extern RingBuffer* rbuf;
+extern RingBuffer player_ring;
+extern cycle_buffer* player_buffer;
 //读取数据的回调函数-------------------------
 //AVIOContext使用的回调函数！
 //注意：返回值是读取的字节数
@@ -356,8 +358,8 @@ extern RingBuffer* rbuf;
 //第一个参数(void *opaque)一般情况下可以不用
 int read_buf(void * opaque,uint8_t *buf, int buf_size){
 	uint32_t len = 0;
-	while(RingBuffer_empty(rbuf))usleep(10000);
-	len = RingBuffer_read(rbuf,buf,buf_size);
+	while(player_ring.empty(player_buffer))usleep(10000);
+	len = player_ring.read(player_buffer,buf,buf_size);
 	return len;
 }
 extern bool sdl_ready;
@@ -407,10 +409,10 @@ void * cap_video (void *arg)
 			}
 			
 			//fwrite(buffers[buf.index].start, buf.bytesused, 1, rec_fp1);
-			if(RingBuffer_overage(rbuf) < buf.bytesused){
-				RingBuffer_Reset(rbuf);
+			if(player_ring.overage(player_buffer) < buf.bytesused){
+				player_ring.Reset(player_buffer);
 			} else {
-				RingBuffer_write(rbuf,(uint8_t*)(buffers[buf.index].start),buf.bytesused);
+				player_ring.write(player_buffer,(uint8_t*)(buffers[buf.index].start),buf.bytesused);
 			}
 
 			ret = ioctl(vd->fd, VIDIOC_QBUF, &buf);
