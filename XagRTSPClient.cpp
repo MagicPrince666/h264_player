@@ -40,6 +40,7 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 pthread_t XagRtsp::rtsp_threadId;
 bool XagRtsp::rtsp_ison = false;
 RTSPClient* Rtspclient;
+uint64_t XagRtsp::live_cnt = 0;
 //bool XagRtsp::video_repo = true;
 // Forward function definitions:
 
@@ -123,7 +124,8 @@ void * XagRtsp::rtsp_thead (void *arg) {
   // There are argc-1 URLs: argv[1] through argv[argc-1].  Open and start streaming each one:
   char rtsp_url[80] = {0};
   //int ret = sprintf(rtsp_url,"rtsp://10.0.0.31/stream");
-  int ret = sprintf(rtsp_url,"rtsp://10.0.0.36:8554/video");
+  //int ret = sprintf(rtsp_url,"rtsp://10.0.0.36:8554/video");
+  int ret = sprintf(rtsp_url,"rtsp://192.168.34.240:554/user=admin&password=&channel=1&stream=0.sdp?");
   rtsp_url[ret] = 0;
   openURL(*env, "xag", rtsp_url);
 
@@ -565,7 +567,7 @@ uint32_t *tempcmd;
 
 
 // If you don't want to see debugging output for each received frame, then comment out the following line:
-#define DEBUG_PRINT_EACH_RECEIVED_FRAME 1
+#define DEBUG_PRINT_EACH_RECEIVED_FRAME 0
 
 void DummySink::afterGettingFrame(unsigned frameSize, unsigned numTruncatedBytes,
           struct timeval presentationTime, unsigned /*durationInMicroseconds*/) {
@@ -596,6 +598,7 @@ fReceiveBuffer[3] =0x01;
 frameSize += 4;
 //printf("frameSize = %d\n", frameSize);
 #endif
+XagRtsp::live_cnt += frameSize;
 //copy h264 stream to usb cdc or aoa
 
   if(!XagRtsp::rtsp_ison){

@@ -14,6 +14,7 @@ public:
     static bool video_repo;
     static RingBuffer aoa_ring;
     static cycle_buffer* aoa_buffer;
+    static uint64_t live_cnt;
     static void * rtsp_thead (void *arg);
 
 private:

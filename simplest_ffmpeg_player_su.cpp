@@ -50,6 +50,7 @@
 #include "listop.h" 
 #include "ringbuffer.h"
 #include "H264_UVC_TestAP.h"
+#include "xag_time_tick.h"
 
 //#define __STDC_CONSTANT_MACROS
 #define SOFT_H264 0
@@ -284,7 +285,7 @@ void *video_decoder_Thread(void *arg)
 		}else if(event.type==SFM_BREAK_EVENT){
 			break;
 		}
-		usleep(100);
+		usleep(1000);
 	}
 
 	sws_freeContext(img_convert_ctx);
@@ -304,9 +305,21 @@ void *video_decoder_Thread(void *arg)
 RingBuffer player_ring;
 cycle_buffer* player_buffer = NULL;
 
+void xag_transmit_speed(int data) {
+	//printf("timer %s, %d\n", __FUNCTION__, g_sec++);
+	printf("live555 in %.2f KB/s\n", (double)XagRtsp::live_cnt/1000.0);
+	//printf("aoa out %.2f KB/s\n", (double)A2spipe::aoa_cnt/1000.0);
+	XagRtsp::live_cnt = 0;
+	//A2spipe::aoa_cnt = 0;
+	add_timer(1, xag_transmit_speed);
+}
+
 int main(int argc, char* argv[])
 {
 
+	signal(SIGALRM, tick);
+	alarm(1); // 1s的周期心跳
+	add_timer(1, xag_transmit_speed);
 	// if(argc >=2)
 	// 	fp_open=fopen(argv[1],"rb+");
 	// else
@@ -361,6 +374,8 @@ int main(int argc, char* argv[])
 #if RTSP_VIDEO
 	if((pthread_create(&thread[1], NULL, XagRtsp::rtsp_thead, NULL)) != 0)   
 		printf("rtsp video create fail!\n");
+	//if((pthread_create(&thread[0], NULL, xag_pack_cnt, NULL)) != 0)   
+	//	printf("rtsp xag_pack_cnt fail!\n");
 #else
 	if((pthread_create(&thread[1], NULL, cap_video, NULL)) != 0)   
 		printf("cap_video create fail!\n");
