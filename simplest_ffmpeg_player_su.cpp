@@ -374,8 +374,6 @@ int main(int argc, char* argv[])
 #if RTSP_VIDEO
 	if((pthread_create(&thread[1], NULL, XagRtsp::rtsp_thead, NULL)) != 0)   
 		printf("rtsp video create fail!\n");
-	//if((pthread_create(&thread[0], NULL, xag_pack_cnt, NULL)) != 0)   
-	//	printf("rtsp xag_pack_cnt fail!\n");
 #else
 	if((pthread_create(&thread[1], NULL, cap_video, NULL)) != 0)   
 		printf("cap_video create fail!\n");

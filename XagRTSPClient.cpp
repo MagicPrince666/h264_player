@@ -125,7 +125,7 @@ void * XagRtsp::rtsp_thead (void *arg) {
   char rtsp_url[80] = {0};
   //int ret = sprintf(rtsp_url,"rtsp://10.0.0.31/stream");
   //int ret = sprintf(rtsp_url,"rtsp://10.0.0.36:8554/video");
-  int ret = sprintf(rtsp_url,"rtsp://192.168.34.240:554/user=admin&password=&channel=1&stream=0.sdp?");
+  int ret = sprintf(rtsp_url,"rtsp://10.0.0.239:554/user=admin&password=&channel=1&stream=0.sdp?");
   rtsp_url[ret] = 0;
   openURL(*env, "xag", rtsp_url);
 
@@ -589,13 +589,26 @@ void DummySink::afterGettingFrame(unsigned frameSize, unsigned numTruncatedBytes
 #endif
 
 #ifndef UVC_CAMERA
-//tempcmd = (uint32_t *)fReceiveBuffer;
-//*tempcmd = 0x00000001;
-fReceiveBuffer[0] =0x00;
-fReceiveBuffer[1] =0x00;
-fReceiveBuffer[2] =0x00;
-fReceiveBuffer[3] =0x01;
+tempcmd = (uint32_t *)fReceiveBuffer;
+*tempcmd = 0x01000000;
+//fReceiveBuffer[0] =0x00;
+//fReceiveBuffer[1] =0x00;
+//fReceiveBuffer[2] =0x00;
+//fReceiveBuffer[3] =0x01;
 frameSize += 4;
+#if 0
+if((fReceiveBuffer[4] & 0x0f) == 0x05) {
+  static uint32_t timer = 0;
+  uint32_t s32ret = 0;
+  struct timeval stamp;
+  gettimeofday(&stamp, NULL);
+  s32ret =stamp.tv_sec*1000 + stamp.tv_usec/1000;
+  int ret = s32ret - timer;
+  if(ret > 350)
+    printf("IDR %ld ms\n", ret);
+  timer = s32ret;
+}
+#endif
 //printf("frameSize = %d\n", frameSize);
 #endif
 XagRtsp::live_cnt += frameSize;
@@ -610,34 +623,10 @@ XagRtsp::live_cnt += frameSize;
 
   //if(XagRtsp::aoa_buffer != NULL){
   if(player_buffer != NULL){
-#if 0
-    int free_buf = 0,j = 0;
-    do
-    {
-      free_buf = aoa_ring.overage(aoa_buffer);
-      usleep(1000);
-      j++;
-      if(j >= 500)
-      {
-        j = 0;
-        printf("free buffer %d\n",free_buf);
-        if(free_buf < frameSize)aoa_ring.Reset(aoa_buffer);
-      }
-    }while(free_buf < frameSize);
-    aoa_ring.write(aoa_buffer, (uint8_t*)fReceiveBuffer, frameSize);//copy to ffmpeg
-
-#else
     if(player_ring.overage(player_buffer) < frameSize){
 				player_ring.Reset(player_buffer);
-			} else {
-				player_ring.write(player_buffer, (uint8_t*)fReceiveBuffer, frameSize);
 			}
-    //if(XagRtsp::aoa_ring.overage(XagRtsp::aoa_buffer) < frameSize){
-    //  XagRtsp::aoa_ring.Reset(XagRtsp::aoa_buffer);
-    //} else {
-    //  XagRtsp::aoa_ring.write(XagRtsp::aoa_buffer, (uint8_t*)fReceiveBuffer, frameSize);//copy to ffmpeg
-    //}
-#endif
+		player_ring.write(player_buffer, (uint8_t*)fReceiveBuffer, frameSize);
 #if 0
       xag_cnt++;
       if(xag_cnt >= 50){
