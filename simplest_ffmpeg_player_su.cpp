@@ -49,7 +49,7 @@
 //#include "h264_camera.h"
 #include "listop.h" 
 #include "ringbuffer.h"
-#include "H264_UVC_TestAP.h"
+//#include "H264_UVC_TestAP.h"
 #include "xag_time_tick.h"
 
 //#define __STDC_CONSTANT_MACROS
@@ -280,7 +280,7 @@ void *video_decoder_Thread(void *arg)
 				thread_pause=!thread_pause;
 		}else if(event.type==SDL_QUIT){
 			thread_exit=1;
-			capturing = 0;
+			//capturing = 0;
 			XagRtsp::rtsp_ison = false;
 		}else if(event.type==SFM_BREAK_EVENT){
 			break;

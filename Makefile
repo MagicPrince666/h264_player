@@ -1,10 +1,10 @@
-CPP = g++
+CPP = clang
 
 TARGET	= decodeH264
 
-FFMPEGDIR = ../FFmpeg
-DIR		= . ./H264_camera ./listop ./ringbuf
-INC		+= -I$(FFMPEGDIR) -I/usr/include -I./listop -I./ringbuf -I./H264_camera
+FFMPEGDIR = ../ffmpeg
+DIR		= . ./listop ./ringbuf
+INC		+= -I$(FFMPEGDIR) -I/usr/include -I./listop -I./ringbuf
 
 livedir := live/
 livemedia := $(livedir)liveMedia
@@ -20,9 +20,10 @@ INC		+= -I. -I$(usageenviroment)/include -I$(basicusage)/include -I$(livemedia)/
 LDFLAGS := $(LIBDIR) -lliveMedia -lBasicUsageEnvironment -lgroupsock -lUsageEnvironment
 
 FFMPEGLIB = -L$(FFMPEGDIR)/libavformat -L$(FFMPEGDIR)/libavcodec -L$(FFMPEGDIR)/libavutil -L$(FFMPEGDIR)/libswscale -L$(FFMPEGDIR)/libswresample
+#FFMPEGLIB += -L$(FFMPEGDIR)/avdevice -L$(FFMPEGDIR)/avfilter -L$(FFMPEGDIR)/avresample
 CFLAGS	= -g -Wall -std=c++11 -O2
-LDFLAGS += $(FFMPEGLIB) -lavformat -lavcodec -lavutil -lswscale -lswresample
-LDFLAGS += -lSDL2 -lpthread -ldl -lz -lm -lusb-1.0
+LDFLAGS += $(FFMPEGLIB) -lavformat -lavcodec -lavutil -lswscale -lswresample #-lavdevice -lavfilter -lavresample
+LDFLAGS += -lSDL2 -liconv -lpthread -ldl -lz -lm -lusb-1.0
 
 OBJPATH	= .
 
@@ -31,7 +32,7 @@ FILES	= $(foreach dir,$(DIR),$(wildcard $(dir)/*.cpp))
 OBJS	= $(patsubst %.cpp,%.o,$(FILES))
 
 all:
-	cd $(livedir) ; ./genMakefiles linux
+	cd $(livedir) ; ./genMakefiles macosx
 	cd $(livemedia) ; $(MAKE) 
 	cd $(groupsock) ; $(MAKE) 
 	cd $(usageenviroment) ; $(MAKE) 

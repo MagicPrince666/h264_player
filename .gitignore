@@ -4,3 +4,17 @@ lib/*.a
 Record.264
 bigbuckbunny_480x272.h264
 decodeH264
+live/BasicUsageEnvironment/*.a
+live/BasicUsageEnvironment/Makefile
+live/groupsock/*.a
+live/groupsock/Makefile
+live/liveMedia/*.a
+live/liveMedia/Makefile
+live/mediaServer/*.a
+live/mediaServer/Makefile
+live/proxyServer/*.a
+live/proxyServer/Makefile
+live/testProgs/*.a
+live/testProgs/Makefile
+live/UsageEnvironment/*.a
+live/UsageEnvironment/Makefile
