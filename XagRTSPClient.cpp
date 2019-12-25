@@ -125,7 +125,7 @@ void * XagRtsp::rtsp_thead (void *arg) {
   char rtsp_url[80] = {0};
   //int ret = sprintf(rtsp_url,"rtsp://10.0.0.31/stream");
   //int ret = sprintf(rtsp_url,"rtsp://10.0.0.36:8554/video");
-  int ret = sprintf(rtsp_url,"rtsp://10.0.0.239:554/user=admin&password=&channel=1&stream=0.sdp?");
+  int ret = sprintf(rtsp_url,"rtsp://10.0.0.240:554/user=admin&password=&channel=1&stream=0.sdp?");
   rtsp_url[ret] = 0;
   openURL(*env, "xag", rtsp_url);
 

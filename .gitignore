@@ -18,3 +18,4 @@ live/testProgs/*.a
 live/testProgs/Makefile
 live/UsageEnvironment/*.a
 live/UsageEnvironment/Makefile
+live/Makefile
