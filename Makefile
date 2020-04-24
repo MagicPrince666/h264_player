@@ -2,7 +2,7 @@ CXX = g++
 
 TARGET	= decodeH264
 
-FFMPEGDIR = ../ffmpeg
+FFMPEGDIR = ../FFmpeg
 DIR		= . ./H264_camera ./listop ./ringbuf
 INC		+= -I$(FFMPEGDIR) -I/usr/include -I./listop -I./ringbuf -I./H264_camera
 
@@ -23,7 +23,7 @@ FFMPEGLIB = -L$(FFMPEGDIR)/libavformat -L$(FFMPEGDIR)/libavcodec -L$(FFMPEGDIR)/
 #FFMPEGLIB += -L$(FFMPEGDIR)/avdevice -L$(FFMPEGDIR)/avfilter -L$(FFMPEGDIR)/avresample
 CFLAGS	= -g -Wall -std=c++11 -O2
 LDFLAGS += $(FFMPEGLIB) -lavformat -lavcodec -lavutil -lswscale -lswresample #-lavdevice -lavfilter -lavresample
-LDFLAGS += -lSDL2 -lpthread -ldl -lz -lm -lusb-1.0
+LDFLAGS += -lX11 -lvdpau -lSDL2 -lpthread -ldl -lz -lm -lusb-1.0
 
 OBJPATH	= .
 
@@ -51,3 +51,4 @@ $(TARGET):$(OBJPATH)
 clean:
 	-rm -f $(OBJPATH)/*.o
 	-rm -f $(TARGET)
+
